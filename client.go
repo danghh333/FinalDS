@@ -25,7 +25,7 @@ func main() {
     }
     res, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
     if err != nil {
-        log.Fatalf("error calling SayHello: %v", err)
+        log.Fatalf("Error calling SayHello: %v", err)
     }
-    log.Printf("Response from server: %s", res.Message)
+    log.Printf("Received response from server: %s", res.Message)
 }

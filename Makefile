@@ -18,7 +18,7 @@ rest:
 	go run server.go -port 8081 -type rest -endpoint 0.0.0.0:8080
 
 client:
-	go run client.go -port 50051
+	go run client.go -port 8080
 
 test:
 	go test -cover -race ./...
