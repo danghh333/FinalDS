@@ -1,31 +1,46 @@
 package main
 
 import (
-    "context"
-    "flag"
-    "log"
-    "google.golang.org/grpc"
-    pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	"context"
+	"flag"
+	"log"
+	"time"
+
+	"google.golang.org/grpc"
+	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
 func main() {
-    port := flag.String("port", "8080", "port number")
-    flag.Parse()
+	// Parse command line arguments
+	port := flag.String("port", "8080", "port number")
+	flag.Parse()
 
-    conn, err := grpc.Dial("localhost:"+*port, grpc.WithInsecure())
-    if err != nil {
-        log.Fatalf("could not connect: %v", err)
-    }
-    defer conn.Close()
-    c := pb.NewGreeterClient(conn)
+	// Set up a connection to the server.
+	conn, err := grpc.Dial("localhost:"+*port, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("could not connect: %v", err)
+	}
+	defer conn.Close()
 
-    name := "world"
-    if len(flag.Args()) > 0 {
-        name = flag.Arg(0)
-    }
-    res, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-    if err != nil {
-        log.Fatalf("Error calling SayHello: %v", err)
-    }
-    log.Printf("Received response from server: %s", res.Message)
+	// Create a new gRPC client
+	c := pb.NewGreeterClient(conn)
+
+	// Define the name to send in the request
+	name := "world"
+	if len(flag.Args()) > 0 {
+		name = flag.Arg(0)
+	}
+
+	// Set a context deadline for the RPC
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	// Call the SayHello RPC
+	res, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	if err != nil {
+		log.Fatalf("error calling SayHello: %v", err)
+	}
+
+	// Print the response
+	log.Printf("Response from server: %s", res.Message)
 }
